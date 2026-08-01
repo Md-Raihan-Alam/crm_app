@@ -70,6 +70,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       userId: admin._id!,
       action: "note.created",
       targetId: result.insertedId,
+      customerId: new ObjectId(id),
       details: `Added a note to customer ${customerExists.name || id}`,
     });
 

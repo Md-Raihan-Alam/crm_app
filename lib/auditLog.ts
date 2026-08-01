@@ -6,6 +6,7 @@ type LogActionParams = {
   userId: ObjectId;
   action: string;
   targetId?: ObjectId;
+  customerId?: ObjectId;
   details?: string;
 };
 
@@ -17,6 +18,7 @@ export async function logAction({
   userId,
   action,
   targetId,
+  customerId,
   details,
 }: LogActionParams): Promise<void> {
   try {
@@ -27,13 +29,13 @@ export async function logAction({
       userId,
       action,
       targetId,
+      customerId,
       details,
       createdAt: new Date(),
     };
 
     await logs.insertOne(entry);
   } catch (error) {
-    // Intentionally swallowed: logging must never break the calling operation.
     console.error("Failed to write audit log:", error);
   }
 }

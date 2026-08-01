@@ -70,6 +70,7 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       userId: admin._id!,
       action: "note.updated",
       targetId: new ObjectId(noteId),
+      customerId: result.customerId,
       details: `Updated fields: ${Object.keys(updates).join(", ")}`,
     });
 
@@ -104,6 +105,8 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
     const db = await getDb();
     const notes = db.collection<Note>("notes");
 
+    const noteToDelete = await notes.findOne({ _id: new ObjectId(noteId) });
+
     const result = await notes.deleteOne({ _id: new ObjectId(noteId) });
 
     if (result.deletedCount === 0) {
@@ -114,6 +117,7 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
       userId: admin._id!,
       action: "note.deleted",
       targetId: new ObjectId(noteId),
+      customerId: noteToDelete?.customerId,
     });
 
     return NextResponse.json({ message: "Note deleted." }, { status: 200 });

@@ -150,6 +150,7 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       userId: admin._id!,
       action: "customer.updated",
       targetId: new ObjectId(id),
+      customerId: new ObjectId(id),
       details: `Updated fields: ${Object.keys(updates)
         .filter((k) => k !== "updatedAt")
         .join(", ")}`,
@@ -205,6 +206,7 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
       userId: admin._id!,
       action: "customer.deleted",
       targetId: new ObjectId(id),
+      customerId: new ObjectId(id),
       details: customerToDelete
         ? `Deleted customer "${customerToDelete.name}"`
         : undefined,

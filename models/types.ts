@@ -1,6 +1,5 @@
 import { ObjectId } from "mongodb";
 
-// A registered user of the system — either an Admin or a Customer.
 export interface User {
   _id?: ObjectId;
   name: string;
@@ -11,21 +10,19 @@ export interface User {
   updatedAt: Date;
 }
 
-// A customer record managed by the Admin.
 export interface Customer {
   _id?: ObjectId;
-  userId?: ObjectId; // links to a User with role "customer", if they have login access
+  userId?: ObjectId;
   name: string;
   email: string;
   phone?: string;
   company?: string;
   status: "lead" | "active" | "inactive";
-  createdBy: ObjectId; // the Admin user who created this record
+  createdBy: ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
 
-// A note attached to a customer.
 export interface Note {
   _id?: ObjectId;
   customerId: ObjectId;
@@ -35,7 +32,6 @@ export interface Note {
   createdAt: Date;
 }
 
-// A task related to a customer.
 export interface Task {
   _id?: ObjectId;
   customerId: ObjectId;
@@ -49,21 +45,20 @@ export interface Task {
   updatedAt: Date;
 }
 
-// An audit log entry.
 export interface AuditLog {
   _id?: ObjectId;
   userId: ObjectId;
   action: string;
   targetId?: ObjectId;
+  customerId?: ObjectId; // denormalized for fast per-customer timeline queries
   details?: string;
   createdAt: Date;
 }
 
-// A server-side session record, backing the httpOnly session cookie.
 export interface Session {
   _id?: ObjectId;
   userId: ObjectId;
-  token: string; // matches the value stored in the cookie
+  token: string;
   expiresAt: Date;
   createdAt: Date;
 }

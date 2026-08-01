@@ -55,11 +55,11 @@ export async function POST(req: NextRequest) {
     };
 
     const result = await customers.insertOne(newCustomer);
-
     await logAction({
       userId: admin._id!,
       action: "customer.created",
       targetId: result.insertedId,
+      customerId: result.insertedId,
       details: `Created customer "${newCustomer.name}"`,
     });
 

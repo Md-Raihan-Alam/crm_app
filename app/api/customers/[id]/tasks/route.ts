@@ -99,6 +99,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     await logAction({
       userId: admin._id!,
       action: "task.created",
+      customerId: new ObjectId(id),
       targetId: result.insertedId,
       details: `Created task "${newTask.title}" assigned to ${
         assigneeExists.name || assignedTo

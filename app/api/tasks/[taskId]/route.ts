@@ -135,6 +135,7 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
     await logAction({
       userId: user._id!,
       action: "task.updated",
+      customerId: existingTask.customerId,
       targetId: new ObjectId(taskId),
       details: `Updated fields: ${Object.keys(updates)
         .filter((k) => k !== "updatedAt")
@@ -179,6 +180,8 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
     const db = await getDb();
     const tasks = db.collection<Task>("tasks");
 
+    const taskToDelete = await tasks.findOne({ _id: new ObjectId(taskId) });
+
     const result = await tasks.deleteOne({ _id: new ObjectId(taskId) });
 
     if (result.deletedCount === 0) {
@@ -189,6 +192,7 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
       userId: user._id!,
       action: "task.deleted",
       targetId: new ObjectId(taskId),
+      customerId: taskToDelete?.customerId,
     });
 
     return NextResponse.json({ message: "Task deleted." }, { status: 200 });
