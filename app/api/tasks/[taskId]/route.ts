@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
 import { getDb } from "@/lib/db";
 import { requireAuth, AuthError } from "@/lib/authGuard";
+import { logAction } from "@/lib/auditLog";
 import { Task } from "@/models/types";
 
 function isValidObjectId(id: string): boolean {
@@ -33,7 +34,6 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
     const updates: Partial<Task> = {};
 
     if (user.role === "customer") {
-      // Customers may only update status, and only on tasks assigned to them.
       if (String(existingTask.assignedTo) !== String(user._id)) {
         return NextResponse.json(
           { error: "You do not have permission to update this task." },
@@ -52,7 +52,6 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       }
       updates.status = body.status;
     } else {
-      // Admin can update any field on any task.
       if (body.title !== undefined) {
         if (typeof body.title !== "string" || body.title.trim().length < 2) {
           return NextResponse.json(
@@ -133,6 +132,15 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       { returnDocument: "after" }
     );
 
+    await logAction({
+      userId: user._id!,
+      action: "task.updated",
+      targetId: new ObjectId(taskId),
+      details: `Updated fields: ${Object.keys(updates)
+        .filter((k) => k !== "updatedAt")
+        .join(", ")}`,
+    });
+
     return NextResponse.json(
       { message: "Task updated.", task: result },
       { status: 200 }
@@ -176,6 +184,12 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
     if (result.deletedCount === 0) {
       return NextResponse.json({ error: "Task not found." }, { status: 404 });
     }
+
+    await logAction({
+      userId: user._id!,
+      action: "task.deleted",
+      targetId: new ObjectId(taskId),
+    });
 
     return NextResponse.json({ message: "Task deleted." }, { status: 200 });
   } catch (error) {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { requireRole, AuthError } from "@/lib/authGuard";
+import { logAction } from "@/lib/auditLog";
 import { Customer } from "@/models/types";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -48,12 +49,19 @@ export async function POST(req: NextRequest) {
       phone: typeof phone === "string" ? phone.trim() : undefined,
       company: typeof company === "string" ? company.trim() : undefined,
       status: finalStatus,
-      createdBy: admin._id!, // server-derived, never from request body
+      createdBy: admin._id!,
       createdAt: now,
       updatedAt: now,
     };
 
     const result = await customers.insertOne(newCustomer);
+
+    await logAction({
+      userId: admin._id!,
+      action: "customer.created",
+      targetId: result.insertedId,
+      details: `Created customer "${newCustomer.name}"`,
+    });
 
     return NextResponse.json(
       {
@@ -94,8 +102,6 @@ export async function GET(req: NextRequest) {
     const db = await getDb();
     const customers = db.collection<Customer>("customers");
 
-    // Escape regex special characters so search input can't break out of
-    // the intended pattern or cause pathological matching.
     const escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
     const filter = search

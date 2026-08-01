@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
 import { getDb } from "@/lib/db";
 import { requireRole, AuthError } from "@/lib/authGuard";
+import { logAction } from "@/lib/auditLog";
 import { Note } from "@/models/types";
 
 function isValidObjectId(id: string): boolean {
@@ -12,7 +13,7 @@ type RouteParams = { params: Promise<{ id: string; noteId: string }> };
 
 export async function PATCH(req: NextRequest, { params }: RouteParams) {
   try {
-    await requireRole(["admin"]);
+    const admin = await requireRole(["admin"]);
 
     const { noteId } = await params;
     if (!isValidObjectId(noteId)) {
@@ -65,6 +66,13 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Note not found." }, { status: 404 });
     }
 
+    await logAction({
+      userId: admin._id!,
+      action: "note.updated",
+      targetId: new ObjectId(noteId),
+      details: `Updated fields: ${Object.keys(updates).join(", ")}`,
+    });
+
     return NextResponse.json(
       { message: "Note updated.", note: result },
       { status: 200 }
@@ -86,7 +94,7 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
 
 export async function DELETE(req: NextRequest, { params }: RouteParams) {
   try {
-    await requireRole(["admin"]);
+    const admin = await requireRole(["admin"]);
 
     const { noteId } = await params;
     if (!isValidObjectId(noteId)) {
@@ -101,6 +109,12 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
     if (result.deletedCount === 0) {
       return NextResponse.json({ error: "Note not found." }, { status: 404 });
     }
+
+    await logAction({
+      userId: admin._id!,
+      action: "note.deleted",
+      targetId: new ObjectId(noteId),
+    });
 
     return NextResponse.json({ message: "Note deleted." }, { status: 200 });
   } catch (error) {

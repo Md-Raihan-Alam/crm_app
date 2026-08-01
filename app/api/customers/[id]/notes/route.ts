@@ -3,6 +3,7 @@ import { ObjectId } from "mongodb";
 import { getDb } from "@/lib/db";
 import { requireAuth, requireRole, AuthError } from "@/lib/authGuard";
 import { isOwnCustomerRecord } from "@/lib/customerAccess";
+import { logAction } from "@/lib/auditLog";
 import { Note } from "@/models/types";
 
 function isValidObjectId(id: string): boolean {
@@ -65,6 +66,13 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
 
     const result = await notes.insertOne(newNote);
 
+    await logAction({
+      userId: admin._id!,
+      action: "note.created",
+      targetId: result.insertedId,
+      details: `Added a note to customer ${customerExists.name || id}`,
+    });
+
     return NextResponse.json(
       { message: "Note added.", note: { ...newNote, _id: result.insertedId } },
       { status: 201 }
@@ -111,7 +119,6 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
     const db = await getDb();
     const notes = db.collection<Note>("notes");
 
-    // Admins see all notes; customers only see notes explicitly marked visible.
     const filter =
       user.role === "admin"
         ? { customerId }

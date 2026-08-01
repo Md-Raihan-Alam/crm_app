@@ -3,6 +3,7 @@ import { ObjectId } from "mongodb";
 import { getDb } from "@/lib/db";
 import { requireAuth, requireRole, AuthError } from "@/lib/authGuard";
 import { isOwnCustomerRecord } from "@/lib/customerAccess";
+import { logAction } from "@/lib/auditLog";
 import { Task } from "@/models/types";
 
 function isValidObjectId(id: string): boolean {
@@ -94,6 +95,15 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     };
 
     const result = await tasks.insertOne(newTask);
+
+    await logAction({
+      userId: admin._id!,
+      action: "task.created",
+      targetId: result.insertedId,
+      details: `Created task "${newTask.title}" assigned to ${
+        assigneeExists.name || assignedTo
+      }`,
+    });
 
     return NextResponse.json(
       {

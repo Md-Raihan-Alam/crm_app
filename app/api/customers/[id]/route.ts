@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
 import { getDb } from "@/lib/db";
 import { requireRole, AuthError } from "@/lib/authGuard";
+import { logAction } from "@/lib/auditLog";
 import { Customer } from "@/models/types";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -53,7 +54,7 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
 
 export async function PATCH(req: NextRequest, { params }: RouteParams) {
   try {
-    await requireRole(["admin"]);
+    const admin = await requireRole(["admin"]);
 
     const { id } = await params;
     if (!isValidObjectId(id)) {
@@ -119,7 +120,6 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
     const db = await getDb();
     const customers = db.collection<Customer>("customers");
 
-    // If email is being changed, make sure it's not taken by a different customer.
     if (updates.email) {
       const existing = await customers.findOne({
         email: updates.email,
@@ -146,6 +146,15 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
       );
     }
 
+    await logAction({
+      userId: admin._id!,
+      action: "customer.updated",
+      targetId: new ObjectId(id),
+      details: `Updated fields: ${Object.keys(updates)
+        .filter((k) => k !== "updatedAt")
+        .join(", ")}`,
+    });
+
     return NextResponse.json(
       { message: "Customer updated.", customer: result },
       { status: 200 }
@@ -167,7 +176,7 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
 
 export async function DELETE(req: NextRequest, { params }: RouteParams) {
   try {
-    await requireRole(["admin"]);
+    const admin = await requireRole(["admin"]);
 
     const { id } = await params;
     if (!isValidObjectId(id)) {
@@ -180,6 +189,9 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
     const db = await getDb();
     const customers = db.collection<Customer>("customers");
 
+    // Fetch before deleting so we can log a meaningful name, not just an id.
+    const customerToDelete = await customers.findOne({ _id: new ObjectId(id) });
+
     const result = await customers.deleteOne({ _id: new ObjectId(id) });
 
     if (result.deletedCount === 0) {
@@ -188,6 +200,15 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
         { status: 404 }
       );
     }
+
+    await logAction({
+      userId: admin._id!,
+      action: "customer.deleted",
+      targetId: new ObjectId(id),
+      details: customerToDelete
+        ? `Deleted customer "${customerToDelete.name}"`
+        : undefined,
+    });
 
     return NextResponse.json({ message: "Customer deleted." }, { status: 200 });
   } catch (error) {
