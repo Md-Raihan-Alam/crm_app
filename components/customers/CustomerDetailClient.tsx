@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { MdArrowBack, MdEdit, MdDelete, MdSave, MdClose } from "react-icons/md";
 import NotesPanel from "@/components/customers/NotesPanel";
-
+import TasksPanel from "@/components/customers/TasksPanel";
 type Customer = {
   _id: string;
   name: string;
@@ -15,7 +15,15 @@ type Customer = {
   status: "lead" | "active" | "inactive";
 };
 
-export default function CustomerDetailClient({ id }: { id: string }) {
+export default function CustomerDetailClient({
+  id,
+  currentUserId,
+  role,
+}: {
+  id: string;
+  currentUserId: string;
+  role: "admin" | "customer";
+}) {
   const router = useRouter();
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [form, setForm] = useState<Partial<Customer>>({});
@@ -240,6 +248,7 @@ export default function CustomerDetailClient({ id }: { id: string }) {
         )}
       </div>
       <NotesPanel customerId={id} />
+      <TasksPanel customerId={id} role={role} currentUserId={currentUserId} />
     </div>
   );
 }
