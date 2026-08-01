@@ -12,8 +12,6 @@ export interface User {
 }
 
 // A customer record managed by the Admin.
-// Note: a Customer *user* (login) may or may not be linked to a Customer *record* —
-// we'll connect these in the Customer Management phase.
 export interface Customer {
   _id?: ObjectId;
   userId?: ObjectId; // links to a User with role "customer", if they have login access
@@ -31,9 +29,9 @@ export interface Customer {
 export interface Note {
   _id?: ObjectId;
   customerId: ObjectId;
-  authorId: ObjectId; // the User who wrote it
+  authorId: ObjectId;
   content: string;
-  visibleToCustomer: boolean; // whether the linked customer can see this note
+  visibleToCustomer: boolean;
   createdAt: Date;
 }
 
@@ -41,7 +39,7 @@ export interface Note {
 export interface Task {
   _id?: ObjectId;
   customerId: ObjectId;
-  assignedTo: ObjectId; // User this task is for
+  assignedTo: ObjectId;
   title: string;
   description?: string;
   status: "pending" | "in-progress" | "completed";
@@ -51,12 +49,21 @@ export interface Task {
   updatedAt: Date;
 }
 
-// An audit log entry — records who did what, for accountability.
+// An audit log entry.
 export interface AuditLog {
   _id?: ObjectId;
   userId: ObjectId;
-  action: string; // e.g. "customer.created", "customer.deleted"
+  action: string;
   targetId?: ObjectId;
   details?: string;
+  createdAt: Date;
+}
+
+// A server-side session record, backing the httpOnly session cookie.
+export interface Session {
+  _id?: ObjectId;
+  userId: ObjectId;
+  token: string; // matches the value stored in the cookie
+  expiresAt: Date;
   createdAt: Date;
 }
