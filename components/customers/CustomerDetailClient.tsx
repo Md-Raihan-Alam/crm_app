@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { MdArrowBack, MdEdit, MdDelete, MdSave, MdClose } from "react-icons/md";
+import NotesPanel from "@/components/customers/NotesPanel";
 
 type Customer = {
   _id: string;
@@ -238,6 +239,7 @@ export default function CustomerDetailClient({ id }: { id: string }) {
           </div>
         )}
       </div>
+      <NotesPanel customerId={id} />
     </div>
   );
 }
