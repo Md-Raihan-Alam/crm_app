@@ -6,6 +6,8 @@ import Link from "next/link";
 import { MdArrowBack, MdEdit, MdDelete, MdSave, MdClose } from "react-icons/md";
 import NotesPanel from "@/components/customers/NotesPanel";
 import TasksPanel from "@/components/customers/TasksPanel";
+import ActivityTimeline from "@/components/customers/ActivityTimeline";
+
 type Customer = {
   _id: string;
   name: string;
@@ -249,6 +251,7 @@ export default function CustomerDetailClient({
       </div>
       <NotesPanel customerId={id} />
       <TasksPanel customerId={id} role={role} currentUserId={currentUserId} />
+      <ActivityTimeline customerId={id} />
     </div>
   );
 }

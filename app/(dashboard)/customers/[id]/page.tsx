@@ -15,5 +15,5 @@ export default async function CustomerDetailPage({
 
   const { id } = await params;
 
-  return <CustomerDetailClient id={id} />;
+  return <CustomerDetailClient id={id} currentUserId={String(user._id)} role={user.role} />;
 }
