@@ -1,14 +1,36 @@
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 
-const SALT_ROUNDS = 12;
+const SALT_ROUNDS = parseInt(process.env.SALT_ROUND || "10", 10);
+
+const PEPPER = process.env.PASSWORD_PEPPER;
+
+if (!PEPPER) {
+  throw new Error(
+    "Missing PASSWORD_PEPPER environment variable. Add it to .env.local"
+  );
+}
+
+/**
+ * Mixes in a server-side secret (the "pepper") before bcrypt ever sees the
+ * password. Unlike bcrypt's own per-password salt (stored alongside the
+ * hash, in the DB), the pepper lives only in the environment — so even a
+ * full database leak isn't enough to brute-force passwords offline without
+ * also having this secret.
+ */
+function applyPepper(plainPassword: string): string {
+  return crypto
+    .createHmac("sha256", PEPPER!)
+    .update(plainPassword)
+    .digest("hex");
+}
 
 /**
  * Hashes a plaintext password for storage.
  * Never store the plaintext password anywhere — only this hash.
  */
 export async function hashPassword(plainPassword: string): Promise<string> {
-  return bcrypt.hash(plainPassword, SALT_ROUNDS);
+  return bcrypt.hash(applyPepper(plainPassword), SALT_ROUNDS);
 }
 
 /**
@@ -19,7 +41,7 @@ export async function verifyPassword(
   plainPassword: string,
   hashedPassword: string
 ): Promise<boolean> {
-  return bcrypt.compare(plainPassword, hashedPassword);
+  return bcrypt.compare(applyPepper(plainPassword), hashedPassword);
 }
 
 /**
