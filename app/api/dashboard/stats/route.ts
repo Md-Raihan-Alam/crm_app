@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { requireAuth, AuthError } from "@/lib/authGuard";
-import { getOwnCustomerRecord } from "@/lib/customerAccess";
+import { Customer } from "@/models/types";
 
 export async function GET(req: NextRequest) {
   try {
@@ -37,8 +37,10 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Customer role: scoped entirely to their own data.
-    const ownRecord = await getOwnCustomerRecord(user._id!);
+    // Customer role: resolve their own record by email — same pattern as
+    // the tasks route — since the userId link isn't reliably set.
+    const customers = db.collection<Customer>("customers");
+    const ownRecord = await customers.findOne({ email: user.email });
 
     if (!ownRecord) {
       return NextResponse.json(
@@ -49,7 +51,7 @@ export async function GET(req: NextRequest) {
 
     const [myOpenTasks, myNotes] = await Promise.all([
       db.collection("tasks").countDocuments({
-        assignedTo: user._id,
+        customerId: ownRecord._id,
         status: { $ne: "completed" },
       }),
       db.collection("notes").countDocuments({

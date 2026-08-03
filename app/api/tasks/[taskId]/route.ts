@@ -3,7 +3,7 @@ import { ObjectId } from "mongodb";
 import { getDb } from "@/lib/db";
 import { requireAuth, AuthError } from "@/lib/authGuard";
 import { logAction } from "@/lib/auditLog";
-import { Task } from "@/models/types";
+import { Task, Customer } from "@/models/types";
 
 function isValidObjectId(id: string): boolean {
   return ObjectId.isValid(id) && String(new ObjectId(id)) === id;
@@ -34,11 +34,15 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
     const updates: Partial<Task> = {};
 
     if (user.role === "customer") {
-      if (String(existingTask.assignedTo) !== String(user._id)) {
-        return NextResponse.json(
-          { error: "You do not have permission to update this task." },
-          { status: 403 }
-        );
+      const customers = db.collection<Customer>("customers");
+      const ownRecord = await customers.findOne({ email: user.email });
+      if (ownRecord != null) {
+        if (String(existingTask.customerId) !== String(ownRecord._id)) {
+          return NextResponse.json(
+            { error: "You do not have permission to update this task." },
+            { status: 403 }
+          );
+        }
       }
 
       if (body.status === undefined) {

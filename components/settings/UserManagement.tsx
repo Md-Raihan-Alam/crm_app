@@ -147,7 +147,7 @@ export default function UserManagement() {
                   setForm((prev) => ({ ...prev, customerId: e.target.value }))
                 }
                 required
-                className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                className="w-full rounded-lg border text-black border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
               >
                 <option value="">Select a customer...</option>
                 {unlinkedCustomers.map((c) => (
@@ -168,7 +168,7 @@ export default function UserManagement() {
                   setForm((prev) => ({ ...prev, email: e.target.value }))
                 }
                 required
-                className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                className="w-full rounded-lg border text-black border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
               />
             </div>
             <div>
@@ -184,7 +184,7 @@ export default function UserManagement() {
                 required
                 minLength={8}
                 placeholder="Share this with the customer directly"
-                className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                className="w-full rounded-lg border text-black border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
               />
             </div>
 

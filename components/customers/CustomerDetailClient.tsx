@@ -282,7 +282,7 @@ function Field({
           name={name}
           value={value || ""}
           onChange={onChange}
-          className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+          className="w-full rounded-lg border text-black border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
         />
       ) : (
         <p className="text-sm text-gray-900">{value || "—"}</p>

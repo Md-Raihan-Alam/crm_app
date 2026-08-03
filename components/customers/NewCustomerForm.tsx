@@ -84,7 +84,7 @@ export default function NewCustomerForm() {
             onChange={handleChange}
             required
             minLength={2}
-            className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="w-full rounded-lg border text-black border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
           />
         </div>
 
@@ -98,7 +98,7 @@ export default function NewCustomerForm() {
             value={form.email}
             onChange={handleChange}
             required
-            className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="w-full rounded-lg border text-black border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
           />
         </div>
 
@@ -110,19 +110,19 @@ export default function NewCustomerForm() {
             name="phone"
             value={form.phone}
             onChange={handleChange}
-            className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="w-full rounded-lg border text-black border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
           />
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
+          <label className="mb-1 block text-sm  font-medium text-gray-700">
             Company
           </label>
           <input
             name="company"
             value={form.company}
             onChange={handleChange}
-            className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="w-full rounded-lg border text-black border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
           />
         </div>
 
@@ -134,7 +134,7 @@ export default function NewCustomerForm() {
             name="status"
             value={form.status}
             onChange={handleChange}
-            className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="w-full rounded-lg border text-black border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
           >
             <option value="lead">Lead</option>
             <option value="active">Active</option>

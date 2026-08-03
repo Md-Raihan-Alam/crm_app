@@ -152,7 +152,7 @@ export default function TasksPanel({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Task title..."
-            className="flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="flex-1 rounded-lg text-black border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
           />
           <button
             type="submit"

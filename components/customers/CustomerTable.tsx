@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { MdBusiness } from "react-icons/md";
+import { MdBusiness, MdArrowForward } from "react-icons/md";
 
 type Customer = {
   _id: string;
@@ -40,18 +40,14 @@ export default function CustomerTable({
           <th className="px-4 py-3 font-medium">Email</th>
           <th className="px-4 py-3 font-medium">Company</th>
           <th className="px-4 py-3 font-medium">Status</th>
+          <th className="px-4 py-3 font-medium text-right">Actions</th>
         </tr>
       </thead>
       <tbody className="divide-y divide-gray-100">
         {customers.map((customer) => (
           <tr key={customer._id} className="hover:bg-gray-50">
-            <td className="px-4 py-3">
-              <Link
-                href={`/customers/${customer._id}`}
-                className="font-medium text-gray-900 hover:text-blue-600"
-              >
-                {customer.name}
-              </Link>
+            <td className="px-4 py-3 font-medium text-gray-900">
+              {customer.name}
             </td>
             <td className="px-4 py-3 text-gray-600">{customer.email}</td>
             <td className="px-4 py-3 text-gray-600">
@@ -65,6 +61,15 @@ export default function CustomerTable({
               >
                 {customer.status}
               </span>
+            </td>
+            <td className="px-4 py-3 text-right">
+              <Link
+                href={`/customers/${customer._id}`}
+                className="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+              >
+                Manage
+                <MdArrowForward size={14} />
+              </Link>
             </td>
           </tr>
         ))}

@@ -104,7 +104,7 @@ export default function NotesPanel({ customerId }: { customerId: string }) {
           onChange={(e) => setContent(e.target.value)}
           placeholder="Add a note..."
           rows={3}
-          className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+          className="w-full rounded-lg border text-black border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
         />
         <div className="flex items-center justify-between">
           <label className="flex items-center gap-2 text-sm text-gray-600">

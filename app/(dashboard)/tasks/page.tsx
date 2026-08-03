@@ -8,6 +8,8 @@ type Task = {
   title: string;
   status: "pending" | "in-progress" | "completed";
   dueDate?: string;
+  assigneeName?: string;
+  customerName?: string;
 };
 
 const COLUMNS: { key: Task["status"]; label: string }[] = [
@@ -18,19 +20,29 @@ const COLUMNS: { key: Task["status"]; label: string }[] = [
 
 export default function MyTasksPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [updatingTaskId, setUpdatingTaskId] = useState<string | null>(null);
 
   const fetchTasks = useCallback(async () => {
     setLoading(true);
+    setError("");
     try {
-      const res = await fetch("/api/tasks");
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || "Failed to load tasks.");
+      const [tasksRes, profileRes] = await Promise.all([
+        fetch("/api/tasks"),
+        fetch("/api/profile"),
+      ]);
+      const tasksData = await tasksRes.json();
+      const profileData = await profileRes.json();
+
+      if (!tasksRes.ok) {
+        setError(tasksData.error || "Failed to load tasks.");
         return;
       }
-      setTasks(data.tasks);
+
+      setTasks(tasksData.tasks);
+      setIsAdmin(profileData.user?.role === "admin");
     } catch {
       setError("Failed to load tasks.");
     } finally {
@@ -39,27 +51,15 @@ export default function MyTasksPage() {
   }, []);
 
   useEffect(() => {
-    const fetchTasks = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch("/api/tasks");
-        const data = await res.json();
-        if (!res.ok) {
-          setError(data.error || "Failed to load tasks.");
-          return;
-        }
-        setTasks(data.tasks);
-      } catch {
-        setError("Failed to load tasks.");
-      } finally {
-        setLoading(false);
-      }
+    const fetchData = async () => {
+      await fetchTasks();
     };
-
-    fetchTasks();
-  }, []);
+    fetchData();
+  }, [fetchTasks]);
 
   async function handleStatusChange(taskId: string, status: Task["status"]) {
+    setUpdatingTaskId(taskId);
+    setError("");
     try {
       const res = await fetch(`/api/tasks/${taskId}`, {
         method: "PATCH",
@@ -78,14 +78,20 @@ export default function MyTasksPage() {
       );
     } catch {
       setError("Failed to update task.");
+    } finally {
+      setUpdatingTaskId(null);
     }
   }
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-gray-900">My Tasks</h1>
+      <h1 className="text-2xl font-semibold text-gray-900">
+        {isAdmin ? "All Tasks" : "My Tasks"}
+      </h1>
       <p className="mt-1 text-sm text-gray-500">
-        Tasks assigned to you, across all customers.
+        {isAdmin
+          ? "Every task across all customers and assignees."
+          : "Tasks assigned to you, across all customers."}
       </p>
 
       {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
@@ -110,6 +116,8 @@ export default function MyTasksPage() {
                         key={task._id}
                         task={task}
                         onStatusChange={handleStatusChange}
+                        updating={updatingTaskId === task._id}
+                        showAssignee={isAdmin}
                       />
                     ))
                   )}

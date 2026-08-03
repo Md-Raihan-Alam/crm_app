@@ -71,7 +71,7 @@ export default function ProfileForm({
           onChange={(e) => setFormName(e.target.value)}
           minLength={2}
           required
-          className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+          className="w-full rounded-lg border text-black border-gray-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
         />
       </div>
 
@@ -82,7 +82,7 @@ export default function ProfileForm({
         <input
           value={email}
           disabled
-          className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-400"
+          className="w-full rounded-lg border text-black border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-400"
         />
         <p className="mt-1 text-xs text-gray-400">Email cannot be changed.</p>
       </div>
